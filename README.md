@@ -42,10 +42,13 @@
 ### 📋 Descripción
 
 **LibretaDeNotas** es una aplicación Java que permite:
-* 📚 **Registro y Evaluación de Calificaciones:** Ingresa hasta 50 alumnos y 10 notas por alumno, con notas válidas entre 0 y 7 (Ejemplo: 5,5 o 5).
+* 📚 **Registro y Evaluación de Calificaciones:** Ingresa hasta 50 alumnos y 10 notas por alumno, con notas válidas entre 0 y 7 (Ejemplo: 5,5 - 5.5 o 5).
 * 📊 **Cálculo Automático:** Determina de manera eficiente el promedio, nota mínima y máxima de cada estudiante, utilizando métodos de la API Collections y Streams para optimizar el código.
-* 🔄 **Menú Interactivo:** Ofrece opciones para mostrar promedios, evaluar si una nota es aprobatoria (mínimo 4.0) o reprobatoria, y comparar una nota individual con el promedio general del curso.
-* 🚀 **Código Optimizado:** Aprovecha métodos y librerías de Java para reducir líneas de código, mejorando la legibilidad y eficiencia.
+* 🔄 **Menú Interactivo y Modular:**
+    - La aplicación ahora cuenta con funciones separadas para cada opción del menú, lo que mejora la legibilidad y mantenimiento del código.
+    - En las opciones de evaluación (opción 2 y 3), al solicitar el nombre del alumno se muestran sus notas registradas y se valida que la nota ingresada pertenezca al alumno.
+    - Se implementa un mecanismo de **3 intentos** para ingresar una nota válida; si se exceden, se retorna al menú.
+* 🚀 **Código Optimizado:** Aprovecha métodos y librerías de Java para reducir líneas de código, mejorando la eficiencia y legibilidad.
 
 ---
 ### ⚙️ Requisitos Previos
@@ -88,15 +91,17 @@ libretadenotas-gperzal/
    - **Nota Mínima**
    - **Nota Máxima**
 
-- **Menú Interactivo:**  
-  Ofrece las siguientes opciones:
-   - **Opción 1:** Mostrar el promedio de cada estudiante.
-   - **Opción 2:** Evaluar si una nota es aprobatoria (mínimo 4.0) o reprobatoria.
-   - **Opción 3:** Comparar una nota con el promedio general del curso.
-   - **Opción 0:** Salir de la aplicación.
+- **Menú Interactivo y Modular:**  
+  La aplicación ofrece las siguientes opciones:
+    - **Opción 1:** Mostrar el promedio de cada estudiante.
+    - **Opción 2:** Evaluar si una nota es aprobatoria (mínimo 4.0) o reprobatoria.  
+      *Se muestran las notas del alumno y se permite hasta 3 intentos para ingresar una nota válida.*
+    - **Opción 3:** Comparar una nota con el promedio general del curso.  
+      *Se muestran las notas del alumno y se valida la nota ingresada con 3 reintentos.*
+    - **Opción 0:** Salir de la aplicación.
 
 - **Optimización de Código:**  
-  Se han utilizado métodos y librerías de Java para reducir líneas de código y mejorar la eficiencia y legibilidad del programa.
+  Se han utilizado funciones separadas y métodos de Java para modularizar el menú y validar la entrada, reduciendo líneas de código y mejorando la eficiencia.
 
 ---
 ### 💻 Ejecución

@@ -37,7 +37,7 @@ public class LibretaDeNotas {
         }
         return numero;
     }
-    
+
     private double leerDouble(Scanner scanner, String mensaje, double min, double max) {
         double valor = 0;
         boolean valido = false;
@@ -58,6 +58,21 @@ public class LibretaDeNotas {
         return valor;
     }
 
+    private double leerNotaValida(Scanner scanner, ArrayList<Double> notas, String mensaje, double min, double max) {
+        int intentos = 0;
+        double nota;
+        while (intentos < 3) {
+            nota = leerDouble(scanner, mensaje, min, max);
+            if (notas.contains(nota)) {
+                return nota;
+            } else {
+                intentos++;
+                System.out.printf("❌ La nota ingresada no pertenece al alumno (%d/3 intentos).%n", intentos);
+            }
+        }
+        return -1;
+    }
+
     public void ejecutar() {
         Scanner scanner = new Scanner(System.in);
 
@@ -73,7 +88,7 @@ public class LibretaDeNotas {
             ArrayList<Double> notasAlumno = new ArrayList<>();
             for (int j = 0; j < numNotas; j++) {
                 double nota = leerDouble(scanner,
-                        String.format("🏅 Ingrese la nota %d para %s (entre 0 y 7 Ejemplo: 5,5 o 5): ",
+                        String.format("🏅 Ingrese la nota %d para %s (entre 0 y 7 Ejemplo: 5,5 - 5.5 o 5): ",
                                 j + 1, nombreAlumno),
                         0, 7);
                 notasAlumno.add(nota);
@@ -100,16 +115,15 @@ public class LibretaDeNotas {
             promediosCurso.put(nombre, promedio);
 
             System.out.println("🏅 Alumno: " + nombre);
-            System.out.printf("   🔎 Promedio: %.1f \n   ⬆️ Nota Máxima: %.1f \n   ⬇️ Nota Mínima: %.1f%n",
+            System.out.printf("   🔎 Promedio: %.1f%n   ⬆️ Nota Máxima: %.1f%n   ⬇️ Nota Mínima: %.1f%n",
                     promedio, notaMax, notaMin);
         }
 
         double promedioCurso = sumaTotalCurso / totalNotasCurso;
         System.out.printf("📌 Promedio del curso: %.1f%n", promedioCurso);
 
-        int opcion;
         final double NOTA_APROBACION = 4.0;
-
+        int opcion;
         do {
             System.out.println("\n📌==================== Menú de Opciones ====================");
             System.out.println("📘 1. Mostrar el Promedio de Notas por Estudiante.");
@@ -129,42 +143,13 @@ public class LibretaDeNotas {
 
             switch (opcion) {
                 case 1:
-                    System.out.println("\n📘--- Promedio de Notas por Estudiante ---");
-                    promediosCurso.forEach((alumno, prom) ->
-                            System.out.printf("🏅 Alumno: %s, Promedio: %.1f%n", alumno, prom)
-                    );
+                    mostrarPromediosEstudiantes(promediosCurso);
                     break;
                 case 2:
-                    System.out.print("\n📘 Ingrese el nombre del alumno a evaluar: ");
-                    String alumnoEvaluar = scanner.nextLine();
-                    if (!calificaciones.containsKey(alumnoEvaluar)) {
-                        System.out.println("❌ El alumno no existe.");
-                        break;
-                    }
-                    double notaEvaluar = leerDouble(scanner,
-                            "🏅 Ingrese la nota a evaluar (entre 0 y 7 Ejemplo: 5,5 o 5): ", 0, 7);
-                    if (notaEvaluar >= NOTA_APROBACION) {
-                        System.out.println("✅ La nota es Aprobatoria.");
-                    } else {
-                        System.out.println("❌ La nota es Reprobatoria.");
-                    }
+                    evaluarAprobacion(scanner, calificaciones, NOTA_APROBACION);
                     break;
                 case 3:
-                    System.out.print("\n📘 Ingrese el nombre del alumno a evaluar: ");
-                    String alumnoPromedio = scanner.nextLine();
-                    if (!calificaciones.containsKey(alumnoPromedio)) {
-                        System.out.println("❌ El alumno no existe.");
-                        break;
-                    }
-                    double notaAlumno = leerDouble(scanner,
-                            "🏅 Ingrese la nota a evaluar (entre 0 y 7 Ejemplo: 5,5 o 5): ", 0, 7);
-                    if (notaAlumno > promedioCurso) {
-                        System.out.println("✅ La nota está por sobre el promedio del curso.");
-                    } else if (notaAlumno < promedioCurso) {
-                        System.out.println("❌ La nota está por debajo del promedio del curso.");
-                    } else {
-                        System.out.println("📌 La nota es igual al promedio del curso.");
-                    }
+                    compararNotaConPromedio(scanner, calificaciones, promedioCurso);
                     break;
                 case 0:
                     System.out.println("❌ Saliendo del menú. ¡Hasta luego!");
@@ -174,5 +159,58 @@ public class LibretaDeNotas {
             }
         } while (opcion != 0);
         scanner.close();
+    }
+
+    private void mostrarPromediosEstudiantes(HashMap<String, Double> promediosCurso) {
+        System.out.println("\n📘--- Promedio de Notas por Estudiante ---");
+        promediosCurso.forEach((alumno, prom) ->
+                System.out.printf("🏅 Alumno: %s, Promedio: %.1f%n", alumno, prom)
+        );
+    }
+
+    private void evaluarAprobacion(Scanner scanner, HashMap<String, ArrayList<Double>> calificaciones, double NOTA_APROBACION) {
+        System.out.print("\n📘 Ingrese el nombre del alumno a evaluar: ");
+        String alumnoEvaluar = scanner.nextLine();
+        if (!calificaciones.containsKey(alumnoEvaluar)) {
+            System.out.println("❌ El alumno no existe.");
+            return;
+        }
+        ArrayList<Double> notas = calificaciones.get(alumnoEvaluar);
+        System.out.println("📝 Las notas de " + alumnoEvaluar + " son: " + notas);
+        double notaEvaluar = leerNotaValida(scanner, notas,
+                "🏅 Ingrese la nota a evaluar (debe estar en el listado anterior): ", 0, 7);
+        if (notaEvaluar == -1) {
+            System.out.println("❌ Se excedieron los intentos. Volviendo al menú...");
+            return;
+        }
+        if (notaEvaluar >= NOTA_APROBACION) {
+            System.out.println("✅ La nota es Aprobatoria.");
+        } else {
+            System.out.println("❌ La nota es Reprobatoria.");
+        }
+    }
+
+    private void compararNotaConPromedio(Scanner scanner, HashMap<String, ArrayList<Double>> calificaciones, double promedioCurso) {
+        System.out.print("\n📘 Ingrese el nombre del alumno a evaluar: ");
+        String alumno = scanner.nextLine();
+        if (!calificaciones.containsKey(alumno)) {
+            System.out.println("❌ El alumno no existe.");
+            return;
+        }
+        ArrayList<Double> notas = calificaciones.get(alumno);
+        System.out.println("📝 Las notas de " + alumno + " son: " + notas);
+        double notaAlumno = leerNotaValida(scanner, notas,
+                "🏅 Ingrese la nota a evaluar (debe estar en el listado anterior): ", 0, 7);
+        if (notaAlumno == -1) {
+            System.out.println("❌ Se excedieron los intentos. Volviendo al menú...");
+            return;
+        }
+        if (notaAlumno > promedioCurso) {
+            System.out.println("✅ La nota está por sobre el promedio del curso.");
+        } else if (notaAlumno < promedioCurso) {
+            System.out.println("❌ La nota está por debajo del promedio del curso.");
+        } else {
+            System.out.println("📌 La nota es igual al promedio del curso.");
+        }
     }
 }
